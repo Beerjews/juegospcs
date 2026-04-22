@@ -1,0 +1,1267 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Newrest · Entrenamiento EPP Integral</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
+
+:root {
+  --bg:       #0d0f14;
+  --surface:  #13161e;
+  --surface2: #1a1e28;
+  --border:   #252a36;
+  --border2:  #2f3545;
+  --text:     #d8dde8;
+  --muted:    #5a6478;
+  --accent:   #e8941a;
+  --accent2:  #c97a10;
+  --success:  #22c55e;
+  --danger:   #ef4444;
+  --warning:  #f59e0b;
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  font-family: 'Inter', system-ui, sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 16px;
+}
+
+/* ─── WRAPPER ─── */
+#app {
+  width: 100%;
+  max-width: 820px;
+}
+
+/* ─── SCREENS ─── */
+.screen { display: none; }
+.screen.active {
+  display: block;
+  animation: fadeUp 0.35s ease both;
+}
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(18px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+/* ══════════════════════════════════════════
+   INTRO
+══════════════════════════════════════════ */
+#intro-screen {
+  text-align: center;
+  padding: 60px 24px;
+}
+.intro-brand {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  background: var(--surface2);
+  border: 1px solid var(--border2);
+  border-radius: 4px;
+  padding: 6px 14px;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: var(--accent);
+  margin-bottom: 32px;
+}
+.intro-brand svg { width: 16px; height: 16px; fill: var(--accent); }
+.intro-title {
+  font-size: clamp(28px, 6vw, 46px);
+  font-weight: 800;
+  color: #fff;
+  line-height: 1.1;
+  margin-bottom: 16px;
+  letter-spacing: -1px;
+}
+.intro-title span { color: var(--accent); }
+.intro-desc {
+  font-size: 15px;
+  color: var(--muted);
+  max-width: 440px;
+  margin: 0 auto 40px;
+  line-height: 1.7;
+}
+.intro-meta {
+  display: flex;
+  justify-content: center;
+  gap: 10px;
+  flex-wrap: wrap;
+  margin-bottom: 40px;
+}
+.meta-pill {
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  padding: 7px 14px;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text);
+  letter-spacing: 0.3px;
+}
+
+/* ─── BOTONES ─── */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 13px 28px;
+  border-radius: 6px;
+  border: none;
+  font-family: inherit;
+  font-size: 14px;
+  font-weight: 700;
+  cursor: pointer;
+  letter-spacing: 0.3px;
+  transition: all 0.18s ease;
+}
+.btn-primary {
+  background: var(--accent);
+  color: #000;
+}
+.btn-primary:hover { background: var(--accent2); transform: translateY(-1px); }
+.btn-ghost {
+  background: transparent;
+  border: 1px solid var(--border2);
+  color: var(--muted);
+}
+.btn-ghost:hover { border-color: var(--text); color: var(--text); }
+.btn:active { transform: scale(0.98); }
+
+/* ══════════════════════════════════════════
+   QUIZ HEADER
+══════════════════════════════════════════ */
+.quiz-header {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  margin-bottom: 20px;
+}
+.q-label {
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  color: var(--muted);
+  white-space: nowrap;
+}
+.progress-track {
+  flex: 1;
+  height: 3px;
+  background: var(--surface2);
+  border-radius: 99px;
+  overflow: hidden;
+}
+.progress-fill {
+  height: 100%;
+  background: var(--accent);
+  border-radius: 99px;
+  transition: width 0.5s cubic-bezier(.4,0,.2,1);
+}
+.score-tag {
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--accent);
+  white-space: nowrap;
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  padding: 4px 10px;
+}
+
+/* ══════════════════════════════════════════
+   SCENE IMAGE
+══════════════════════════════════════════ */
+.scene-frame {
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  overflow: hidden;
+  margin-bottom: 20px;
+  position: relative;
+}
+.scene-frame img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  display: block;
+}
+.scene-placeholder {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  color: var(--muted);
+}
+.scene-placeholder svg {
+  width: 48px; height: 48px;
+  stroke: var(--border2);
+  fill: none;
+  stroke-width: 1.5;
+}
+.scene-placeholder span {
+  font-size: 12px;
+  letter-spacing: 0.5px;
+}
+.scene-num {
+  position: absolute;
+  top: 12px;
+  left: 12px;
+  background: rgba(0,0,0,0.65);
+  backdrop-filter: blur(6px);
+  border: 1px solid rgba(255,255,255,0.08);
+  color: #fff;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  padding: 4px 10px;
+  border-radius: 3px;
+}
+
+/* ══════════════════════════════════════════
+   SECTION LABEL
+══════════════════════════════════════════ */
+.section-head {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 12px;
+}
+.section-head .label {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+.section-head::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: var(--border);
+}
+
+/* ══════════════════════════════════════════
+   RISK SECTION
+══════════════════════════════════════════ */
+.risks-block {
+  background: var(--surface);
+  border: 1px solid var(--border2);
+  border-radius: 8px;
+  padding: 18px 20px;
+  margin-bottom: 20px;
+}
+.risks-block-title {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--text);
+  margin-bottom: 14px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.risks-block-title::before {
+  content: '';
+  display: inline-block;
+  width: 3px;
+  height: 14px;
+  background: var(--accent);
+  border-radius: 2px;
+  flex-shrink: 0;
+}
+.risks-wrap {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 8px;
+}
+.risk-chip {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 13px 16px;
+  border-radius: 6px;
+  border: 1px solid var(--border);
+  background: var(--bg);
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--text);
+  transition: all 0.15s ease;
+  user-select: none;
+}
+.risk-chip:hover {
+  border-color: var(--accent);
+  background: rgba(232,148,26,0.05);
+}
+.risk-chip.selected {
+  border-color: var(--accent);
+  background: rgba(232,148,26,0.10);
+  color: var(--accent);
+  font-weight: 600;
+}
+.risk-chip .radio {
+  width: 18px; height: 18px;
+  border-radius: 50%;
+  border: 2px solid var(--border2);
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.15s;
+}
+.risk-chip.selected .radio {
+  border-color: var(--accent);
+  background: var(--accent);
+}
+.risk-chip.selected .radio::after {
+  content: '';
+  width: 6px; height: 6px;
+  border-radius: 50%;
+  background: #000;
+}
+
+/* ══════════════════════════════════════════
+   LENS CARDS
+══════════════════════════════════════════ */
+.lenses-wrap {
+  display: grid;
+  gap: 12px;
+  margin-bottom: 24px;
+}
+.lens-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 16px;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  user-select: none;
+  position: relative;
+}
+.lens-card:hover {
+  border-color: var(--border2);
+  background: var(--surface2);
+}
+.lens-card.selected {
+  border-color: var(--accent);
+  background: rgba(232,148,26,0.06);
+}
+.lens-card.selected::after {
+  content: '✓';
+  position: absolute;
+  top: 8px;
+  right: 10px;
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--accent);
+}
+.lens-img-wrap {
+  width: 100%;
+  aspect-ratio: 4 / 3;
+  background: var(--surface2);
+  border-radius: 5px;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.lens-img-wrap img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  padding: 8px;
+}
+.lens-img-placeholder {
+  font-size: 13px;
+  color: var(--border2);
+  font-weight: 600;
+  letter-spacing: 0.5px;
+  text-align: center;
+  padding: 0 8px;
+}
+.lens-label {
+  font-size: 12px;
+  font-weight: 600;
+  text-align: center;
+  color: var(--text);
+  line-height: 1.3;
+}
+
+/* ══════════════════════════════════════════
+   ACTION ROW
+══════════════════════════════════════════ */
+.action-row {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  padding-top: 4px;
+}
+
+/* ══════════════════════════════════════════
+   FEEDBACK MODAL
+══════════════════════════════════════════ */
+#feedback-overlay {
+  display: none;
+  position: fixed;
+  inset: 0;
+  z-index: 100;
+  background: rgba(0,0,0,0.8);
+  backdrop-filter: blur(4px);
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+}
+#feedback-overlay.show { display: flex; }
+.fb-box {
+  background: var(--surface);
+  border: 1px solid var(--border2);
+  border-radius: 10px;
+  padding: 32px;
+  max-width: 460px;
+  width: 100%;
+  animation: popIn 0.3s cubic-bezier(.34,1.56,.64,1);
+}
+@keyframes popIn {
+  from { transform: scale(0.88); opacity: 0; }
+  to   { transform: scale(1);    opacity: 1; }
+}
+.fb-status {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 16px;
+}
+.fb-dot {
+  width: 10px; height: 10px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+.fb-dot.correct { background: var(--success); }
+.fb-dot.partial  { background: var(--warning); }
+.fb-dot.wrong    { background: var(--danger); }
+.fb-title {
+  font-size: 18px;
+  font-weight: 800;
+  color: #fff;
+}
+.fb-body {
+  font-size: 13px;
+  color: var(--muted);
+  line-height: 1.7;
+  margin-bottom: 16px;
+}
+.fb-detail {
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 14px 16px;
+  font-size: 12.5px;
+  line-height: 2;
+  margin-bottom: 20px;
+}
+.fb-detail .ok  { color: var(--success); font-weight: 600; }
+.fb-detail .err { color: var(--danger);  font-weight: 600; }
+.fb-detail .neutral { color: var(--muted); }
+.fb-explanation {
+  font-size: 12px;
+  color: var(--muted);
+  line-height: 1.7;
+  border-top: 1px solid var(--border);
+  padding-top: 14px;
+  margin-bottom: 20px;
+}
+
+/* ══════════════════════════════════════════
+   RESULTS
+══════════════════════════════════════════ */
+#results-screen { padding: 40px 0; }
+.results-header {
+  text-align: center;
+  margin-bottom: 36px;
+}
+.results-tag {
+  display: inline-block;
+  background: var(--surface2);
+  border: 1px solid var(--border2);
+  border-radius: 4px;
+  padding: 5px 12px;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  color: var(--accent);
+  margin-bottom: 20px;
+}
+.results-title {
+  font-size: clamp(24px, 5vw, 36px);
+  font-weight: 800;
+  color: #fff;
+  letter-spacing: -0.5px;
+  margin-bottom: 8px;
+}
+.results-sub { font-size: 14px; color: var(--muted); }
+
+.score-display {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0;
+  margin: 32px auto;
+  max-width: 320px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  overflow: hidden;
+}
+.score-block {
+  flex: 1;
+  padding: 20px;
+  text-align: center;
+  border-right: 1px solid var(--border);
+}
+.score-block:last-child { border-right: none; }
+.score-block .val {
+  font-size: 28px;
+  font-weight: 800;
+  color: #fff;
+  display: block;
+}
+.score-block .lbl {
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+
+.results-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-bottom: 32px;
+}
+.result-row {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 14px 18px;
+  font-size: 13px;
+}
+.result-row .r-icon { font-size: 16px; flex-shrink: 0; }
+.result-row .r-name { flex: 1; font-weight: 500; }
+.result-row .r-pts {
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--muted);
+  background: var(--surface2);
+  border-radius: 3px;
+  padding: 3px 8px;
+}
+.result-row.pass { border-left: 3px solid var(--success); }
+.result-row.fail { border-left: 3px solid var(--danger); }
+
+.results-cta {
+  display: flex;
+  gap: 10px;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+/* ─── CONFETTI ─── */
+.confetti-piece {
+  position: fixed;
+  animation: cfall 3s ease-in forwards;
+  z-index: 200;
+  pointer-events: none;
+  border-radius: 2px;
+}
+@keyframes cfall {
+  from { transform: translateY(-20px) rotate(0); opacity: 1; }
+  to   { transform: translateY(100vh) rotate(540deg); opacity: 0; }
+}
+
+/* ─── SHAKE ─── */
+@keyframes shake {
+  0%,100% { transform: translateX(0); }
+  20%      { transform: translateX(-6px); }
+  40%      { transform: translateX(6px); }
+  60%      { transform: translateX(-4px); }
+  80%      { transform: translateX(4px); }
+}
+
+@media (max-width: 520px) {
+  .fb-box { padding: 24px 18px; }
+  .scene-frame { aspect-ratio: 4 / 3; }
+}
+
+/* ══════════════════════════════════════════
+   REGISTER SCREEN
+══════════════════════════════════════════ */
+#register-screen {
+  text-align: center;
+  padding: 60px 24px;
+}
+.reg-card {
+  background: var(--surface);
+  border: 1px solid var(--border2);
+  border-radius: 12px;
+  padding: 40px 32px;
+  max-width: 440px;
+  margin: 0 auto;
+}
+.reg-title {
+  font-size: 22px;
+  font-weight: 800;
+  color: #fff;
+  margin-bottom: 6px;
+}
+.reg-sub {
+  font-size: 13px;
+  color: var(--muted);
+  margin-bottom: 32px;
+}
+.reg-field {
+  text-align: left;
+  margin-bottom: 18px;
+}
+.reg-field label {
+  display: block;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  color: var(--muted);
+  margin-bottom: 7px;
+}
+.reg-field input, .reg-field select {
+  width: 100%;
+  background: var(--surface2);
+  border: 1px solid var(--border2);
+  border-radius: 6px;
+  padding: 11px 14px;
+  font-family: inherit;
+  font-size: 14px;
+  color: var(--text);
+  outline: none;
+  transition: border-color 0.18s;
+}
+.reg-field input:focus, .reg-field select:focus {
+  border-color: var(--accent);
+}
+.reg-field select option { background: var(--surface2); }
+.reg-error {
+  font-size: 12px;
+  color: var(--danger);
+  margin-top: 4px;
+  display: none;
+}
+.reg-error.show { display: block; }
+.reg-footer {
+  margin-top: 12px;
+  font-size: 11px;
+  color: var(--muted);
+}
+.reg-footer a {
+  color: var(--accent);
+  text-decoration: none;
+}
+.reg-footer a:hover { text-decoration: underline; }
+</style>
+</head>
+<body>
+<div id="app">
+
+  <!-- ══ REGISTRO ══ -->
+  <div id="register-screen" class="screen active">
+    <div class="reg-card">
+      <div class="intro-brand" style="justify-content:center;margin-bottom:20px;">
+        <svg viewBox="0 0 24 24"><path d="M12 1L3 5v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V5l-9-4z" fill="currentColor"/></svg>
+        Newrest · Seguridad Laboral
+      </div>
+      <div class="reg-title">Identificate para comenzar</div>
+      <div class="reg-sub">Tus respuestas quedarán registradas para seguimiento.</div>
+
+      <div class="reg-field">
+        <label>Nombre completo</label>
+        <input id="reg-nombre" type="text" placeholder="Ej: María González" autocomplete="off">
+        <div class="reg-error" id="err-nombre">Ingresa tu nombre.</div>
+      </div>
+      <div class="reg-field">
+        <label>Cargo</label>
+        <input id="reg-cargo" type="text" placeholder="Ej: Supervisor de Turno" list="lista-cargos" autocomplete="off">
+        <datalist id="lista-cargos">
+          <option value="Operador">
+          <option value="Supervisor de Turno">
+          <option value="Jefe de Área">
+          <option value="Auxiliar">
+          <option value="Administrativo">
+          <option value="Técnico">
+          <option value="Analista">
+          <option value="Coordinador">
+        </datalist>
+        <div class="reg-error" id="err-cargo">Ingresa tu cargo.</div>
+      </div>
+      <div class="reg-field">
+        <label>Área</label>
+        <select id="reg-area">
+          <option value="">Selecciona tu área...</option>
+          <option value="ASEO">ASEO</option>
+          <option value="ALIMENTACION">ALIMENTACION</option>
+          <option value="HOTELERIA">HOTELERIA</option>
+          <option value="RETAIL">RETAIL</option>
+          <option value="GYM">GYM</option>
+          <option value="MANTENCION">MANTENCION</option>
+          <option value="QHSE">QHSE</option>
+          <option value="RRHH">RRHH</option>
+        </select>
+        <div class="reg-error" id="err-area">Selecciona tu área.</div>
+      </div>
+
+      <button class="btn btn-primary" style="width:100%;justify-content:center;" onclick="submitRegister()">Continuar &rarr;</button>
+      <div class="reg-footer" style="margin-top:16px;">
+        <a href="admin.html" target="_blank">Panel de administración</a>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══ INTRO ══ -->
+  <div id="intro-screen" class="screen">
+    <div class="intro-brand">
+      <svg viewBox="0 0 24 24"><path d="M12 1L3 5v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V5l-9-4z" fill="currentColor"/></svg>
+      Newrest · Seguridad Laboral
+    </div>
+    <h1 class="intro-title">Entrenamiento en<br><span>Elementos de Protección</span></h1>
+    <p class="intro-desc">
+      Analiza cada situación de trabajo, identifica el principal riesgo
+      y selecciona el EPP correcto para esa tarea.
+    </p>
+    <div class="intro-meta">
+      <div class="meta-pill">6 escenarios</div>
+      <div class="meta-pill">Feedback inmediato</div>
+      <div class="meta-pill">Puntaje final</div>
+    </div>
+    <button class="btn btn-primary" onclick="startGame()">Comenzar &rarr;</button>
+  </div>
+
+  <!-- ══ QUIZ ══ -->
+  <div id="quiz-screen" class="screen">
+    <div class="quiz-header">
+      <span class="q-label" id="q-counter">01 / 06</span>
+      <div class="progress-track">
+        <div class="progress-fill" id="progress-fill" style="width:0%"></div>
+      </div>
+      <span class="score-tag" id="score-tag">0 pts</span>
+    </div>
+
+    <div class="scene-frame" id="scene-frame">
+      <!-- imagen inyectada por JS -->
+    </div>
+
+    <div class="section-head"><span class="label">¿Qué EPP le falta al trabajador?</span></div>
+    <div class="lenses-wrap" id="lenses-container"></div>
+
+    <div class="risks-block">
+      <div class="risks-block-title">¿A qué riesgo se expone al no contar con ese EPP?</div>
+      <div class="risks-wrap" id="risks-container"></div>
+    </div>
+
+    <div class="action-row">
+      <button class="btn btn-ghost" onclick="skipQuestion()">Saltar</button>
+      <button class="btn btn-primary" id="btn-confirm" onclick="confirmAnswer()">Confirmar &rarr;</button>
+    </div>
+  </div>
+
+  <!-- ══ RESULTADOS ══ -->
+  <div id="results-screen" class="screen">
+    <div class="results-header">
+      <div class="results-tag" id="results-tag">Resultado</div>
+      <div class="results-title" id="results-title">Entrenamiento completado</div>
+      <div class="results-sub"  id="results-sub"></div>
+    </div>
+    <div class="score-display">
+      <div class="score-block">
+        <span class="val" id="res-pct">—</span>
+        <span class="lbl">Aciertos</span>
+      </div>
+      <div class="score-block">
+        <span class="val" id="res-pts">—</span>
+        <span class="lbl">Puntaje</span>
+      </div>
+    </div>
+    <div class="results-list" id="results-list"></div>
+    <div class="results-cta">
+      <button class="btn btn-primary" onclick="restartGame()">Volver a intentar</button>
+      <button class="btn btn-ghost"   onclick="showScreen('register-screen')">Cambiar usuario</button>
+    </div>
+  </div>
+
+</div>
+
+<!-- ══ FEEDBACK OVERLAY ══ -->
+<div id="feedback-overlay">
+  <div class="fb-box">
+    <div class="fb-status">
+      <div class="fb-dot" id="fb-dot"></div>
+      <div class="fb-title" id="fb-title"></div>
+    </div>
+    <div class="fb-body" id="fb-body"></div>
+    <div class="fb-detail" id="fb-detail"></div>
+    <div class="fb-explanation" id="fb-explanation"></div>
+    <div style="display:flex;justify-content:flex-end;">
+      <button class="btn btn-primary" id="fb-btn" onclick="nextQuestion()">Siguiente &rarr;</button>
+    </div>
+  </div>
+</div>
+
+<script>
+/* ══════════════════════════════════════════
+   DATOS
+══════════════════════════════════════════ */
+
+/*
+  Cada escenario tiene:
+  - imagePath      : ruta de la imagen de la tarea
+  - correctRisk    : string con el riesgo correcto
+  - riskOptions    : array de 3 strings (1 correcto + 2 distractores)
+  - correctEPP     : id del EPP correcto
+  - eppOptions     : array de 3 objetos { id, img, name }
+                     img puede ser null para mostrar solo texto
+  - explanation    : texto que aparece en el feedback
+*/
+
+const SCENARIOS = [
+  {
+    id: 1,
+    imagePath: "img1-espejo.png",
+    correctRisk: "Salpicadura de producto químico en ojos",
+    riskOptions: [
+      "Salpicadura de producto químico en ojos",
+      "Radiación ultravioleta (UV)",
+      "Proyección de partículas sólidas"
+    ],
+    correctEPP: "epp-lentes-claros",
+    eppOptions: [
+      { id: "epp-lentes-claros",         img: "epps/img3-lentesclaros.png",       name: "Lentes de seguridad claros" },
+      { id: "epp-cubrelentes-claros",    img: "epps/img2-cubrelentesclaros.png",  name: "Cubrelentes claros" },
+      { id: "epp-lentes-oscuros",        img: "epps/img4-lentesoscuros.png",      name: "Lentes de seguridad oscuros" }
+    ],
+    explanation: "Al aplicar productos químicos en superficies verticales el producto puede rebotar hacia los ojos. Se usan lentes de seguridad claros para interiores. Los cubrelentes claros son solo para trabajadores con lentes ópticos. Los lentes oscuros son para exteriores y reducen la visión en ambientes cerrados."
+  },
+  {
+    id: 2,
+    imagePath: "img2-barrer.png",
+    correctRisk: "Radiación ultravioleta (UV)",
+    riskOptions: [
+      "Radiación ultravioleta (UV)",
+      "Salpicadura de producto químico",
+      "Salpicadura de líquido caliente"
+    ],
+    correctEPP: "epp-lentes-oscuros",
+    eppOptions: [
+      { id: "epp-lentes-claros",         img: "epps/img3-lentesclaros.png",       name: "Lentes de seguridad claros" },
+      { id: "epp-lentes-oscuros",        img: "epps/img4-lentesoscuros.png",       name: "Lentes de seguridad oscuros" },
+      { id: "epp-cubrelentes-oscuros",   img: "epps/img1-cubrelentesoscuros.png", name: "Cubrelentes oscuros" }
+    ],
+    explanation: "Barrer en exteriores bajo sol directo expone los ojos a radiación UV prolongada. Se deben usar lentes de seguridad oscuros con filtro UV. Los cubrelentes oscuros son solo para quienes usan lentes ópticos. Los lentes claros no tienen protección UV y no son adecuados para uso exterior."
+  },
+  {
+    id: 3,
+    imagePath: "img3-limpiezamesa.png",
+    correctRisk: "Contacto de producto químico con las manos",
+    riskOptions: [
+      "Contacto de producto químico con las manos",
+      "Salpicadura de producto químico en los ojos",
+      "Inhalación de vapores químicos"
+    ],
+    correctEPP: "epp-guantes-nitrilo",
+    eppOptions: [
+      { id: "epp-guantes-nitrilo",   img: "epps/img5-guantesnitrilo.png",        name: "Guantes de nitrilo" },
+      { id: "epp-lentes-claros",     img: "epps/img3-lentesclaros.png",           name: "Lentes de seguridad claros" },
+      { id: "epp-mascarilla",        img: "epps/img8-mascarilla.png",             name: "Mascarilla desechable" }
+    ],
+    explanation: "Al aplicar productos químicos de limpieza directamente con las manos existe riesgo de quemaduras químicas e irritación de la piel. Se deben usar guantes de nitrilo, que ofrecen resistencia a productos de limpieza. Los lentes protegen los ojos y la mascarilla las vías respiratorias, pero ninguno protege las manos."
+  },
+  {
+    id: 4,
+    imagePath: "img4-mantencionac.png",
+    correctRisk: "Inhalación de polvo y partículas en suspensión",
+    riskOptions: [
+      "Inhalación de polvo y partículas en suspensión",
+      "Salpicadura de líquido caliente",
+      "Radiación ultravioleta (UV)"
+    ],
+    correctEPP: "epp-mascarilla",
+    eppOptions: [
+      { id: "epp-mascarilla",      img: "epps/img8-mascarilla.png",        name: "Mascarilla desechable" },
+      { id: "epp-guantes-nitrilo", img: "epps/img5-guantesnitrilo.png",    name: "Guantes de nitrilo" },
+      { id: "epp-lentes-claros",   img: "epps/img3-lentesclaros.png",      name: "Lentes de seguridad claros" }
+    ],
+    explanation: "Al realizar mantención de aire acondicionado se acumula polvo, tierra y partículas en el filtro y ductos. Inhalar estas partículas puede irritar las vías respiratorias. Si bien la mascarilla es un elemento de protección higiénica y no un EPP en sentido estricto, en esta tarea es el elemento que le faltaba al trabajador para protegerse. Los guantes y lentes protegen otras partes del cuerpo pero no las vías respiratorias."
+  },
+  {
+    id: 5,
+    imagePath: "img5-usodetranspaleta.png",
+    correctRisk: "Golpes y aplastamiento de manos",
+    riskOptions: [
+      "Golpes y aplastamiento de manos",
+      "Inhalación de polvo en suspensión",
+      "Salpicadura de producto químico en ojos"
+    ],
+    correctEPP: "epp-guantes-antigolpes",
+    eppOptions: [
+      { id: "epp-guantes-antigolpes", img: "epps/img10-guantesantigolpes.png", name: "Guantes anti golpes" },
+      { id: "epp-mascarilla",         img: "epps/img8-mascarilla.png",         name: "Mascarilla desechable" },
+      { id: "epp-lentes-claros",      img: "epps/img3-lentesclaros.png",       name: "Lentes de seguridad claros" }
+    ],
+    explanation: "Al operar una transpaleta existe riesgo de golpes y aplastamiento de manos con la carga o el equipo. Los guantes anti golpes protegen las manos ante impactos y compresiones. La mascarilla y los lentes no ofrecen protección para las manos en esta tarea."
+  },
+  {
+    id: 6,
+    imagePath: "img6-pintar.png",
+    correctRisk: "Salpicadura de pintura en ojos",
+    riskOptions: [
+      "Salpicadura de pintura en ojos",
+      "Golpes y aplastamiento de manos",
+      "Inhalación de polvo en suspensión"
+    ],
+    correctEPP: "epp-lentes-claros",
+    eppOptions: [
+      { id: "epp-lentes-claros",      img: "epps/img3-lentesclaros.png",        name: "Lentes de seguridad claros" },
+      { id: "epp-mascarilla",         img: "epps/img8-mascarilla.png",           name: "Mascarilla desechable" },
+      { id: "epp-guantes-antigolpes", img: "epps/img10-guantesantigolpes.png",   name: "Guantes anti golpes" }
+    ],
+    explanation: "Al pintar en interiores existe riesgo de que gotas o salpicaduras de pintura impacten los ojos, pudiendo causar irritación o daño. Los lentes de seguridad claros son el EPP faltante en esta tarea. La mascarilla protege las vías respiratorias y los guantes las manos, pero ninguno protege los ojos."
+  }
+];
+
+/* ══════════════════════════════════════════
+   ESTADO
+══════════════════════════════════════════ */
+let currentUser  = null; // { nombre, cargo, area }
+let currentQ    = 0;
+let score       = 0;
+let maxScore    = 0;
+let selectedRisk = null;
+let selectedEPP  = null;
+let answers     = [];
+let queue       = []; // escenarios en orden aleatorio
+
+function shuffle(arr) {
+  const a = [...arr];
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
+}
+
+/* ══════════════════════════════════════════
+   REGISTRO
+══════════════════════════════════════════ */
+function submitRegister() {
+  const nombre = document.getElementById('reg-nombre').value.trim();
+  const cargo  = document.getElementById('reg-cargo').value.trim();
+  const area   = document.getElementById('reg-area').value.trim();
+  let ok = true;
+
+  document.getElementById('err-nombre').classList.toggle('show', !nombre);
+  document.getElementById('err-cargo').classList.toggle('show', !cargo);
+  document.getElementById('err-area').classList.toggle('show', !area);
+  if (!nombre || !cargo || !area) return;
+
+  currentUser = { nombre, cargo, area };
+  showScreen('intro-screen');
+}
+
+/* ══════════════════════════════════════════
+   PERSISTENCIA
+══════════════════════════════════════════ */
+
+// Pega aquí la URL de tu Google Apps Script Web App
+const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwkCSnKqXGM9ycWOQR5PgcTq86xenzLlgeb6-Uu_erTazGF34jbpjpG2VZgkiLHKIAsDg/exec';
+
+function saveAttempt(pct, tag) {
+  if (!currentUser) return;
+
+  const payload = {
+    nombre:    currentUser.nombre,
+    cargo:     currentUser.cargo,
+    area:      currentUser.area,
+    score,
+    maxScore,
+    pct,
+    tag,
+    timestamp: new Date().toISOString()
+  };
+
+  // Enviar a Google Sheets
+  if (APPS_SCRIPT_URL && APPS_SCRIPT_URL !== 'PEGA_AQUI_TU_URL') {
+    fetch(APPS_SCRIPT_URL, {
+      method: 'POST',
+      mode: 'no-cors',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload)
+    }).catch(() => {}); // silencioso si falla la red
+  }
+}
+
+/* ══════════════════════════════════════════
+   NAVEGACIÓN
+══════════════════════════════════════════ */
+function showScreen(id) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+}
+function showIntro()    { if (!currentUser) { showScreen('register-screen'); return; } showScreen('intro-screen'); }
+function startGame()    { if (!currentUser) { showScreen('register-screen'); return; } currentQ = 0; score = 0; maxScore = 0; answers = []; selectedRisk = null; selectedEPP = null; queue = shuffle(SCENARIOS.filter(s => !s.imagePath.includes('placeholder'))); showScreen('quiz-screen'); renderQ(); }
+function restartGame()  { startGame(); }
+
+/* ══════════════════════════════════════════
+   RENDER PREGUNTA
+══════════════════════════════════════════ */
+function renderQ() {
+  const s = queue[currentQ];
+  selectedRisk = null;
+  selectedEPP  = null;
+
+  // Header
+  const num = String(currentQ + 1).padStart(2, '0');
+  const tot = String(queue.length).padStart(2, '0');
+  document.getElementById('q-counter').textContent = `${num} / ${tot}`;
+  document.getElementById('progress-fill').style.width = (currentQ / queue.length * 100) + '%';
+  document.getElementById('score-tag').textContent = score + ' pts';
+
+  // Imagen
+  const frame = document.getElementById('scene-frame');
+  frame.innerHTML = `<span class="scene-num">Escenario ${currentQ + 1}</span>`;
+  const img = document.createElement('img');
+  img.src = s.imagePath;
+  img.alt = '';
+  img.onerror = () => {
+    img.remove();
+    const ph = document.createElement('div');
+    ph.className = 'scene-placeholder';
+    ph.innerHTML = `<svg viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg><span>Imagen no cargada</span>`;
+    frame.prepend(ph);
+  };
+  frame.prepend(img);
+
+  // Riesgos — 3 opciones por escenario
+  const risksEl = document.getElementById('risks-container');
+  risksEl.innerHTML = '';
+  s.riskOptions.forEach(r => {
+    const chip = document.createElement('div');
+    chip.className = 'risk-chip';
+    chip.dataset.id = r;
+    chip.innerHTML = `<span class="radio"></span>${r}`;
+    chip.onclick = () => selectRisk(chip, r);
+    risksEl.appendChild(chip);
+  });
+
+  // EPP options
+  const eppEl = document.getElementById('lenses-container');
+  eppEl.innerHTML = '';
+  eppEl.style.gridTemplateColumns = `repeat(${Math.min(s.eppOptions.length, 3)}, 1fr)`;
+
+  s.eppOptions.forEach(epp => {
+    const card = document.createElement('div');
+    card.className = 'lens-card';
+    card.dataset.id = epp.id;
+
+    const imgWrap = document.createElement('div');
+    imgWrap.className = 'lens-img-wrap';
+
+    if (epp.img) {
+      const limg = document.createElement('img');
+      limg.src = epp.img;
+      limg.alt = epp.name;
+      limg.onerror = () => {
+        limg.remove();
+        const ph = document.createElement('div');
+        ph.className = 'lens-img-placeholder';
+        ph.textContent = epp.name;
+        imgWrap.appendChild(ph);
+      };
+      imgWrap.appendChild(limg);
+    } else {
+      const ph = document.createElement('div');
+      ph.className = 'lens-img-placeholder';
+      ph.textContent = epp.name;
+      imgWrap.appendChild(ph);
+    }
+
+    const label = document.createElement('div');
+    label.className = 'lens-label';
+    label.textContent = epp.name;
+
+    card.appendChild(imgWrap);
+    card.appendChild(label);
+    card.onclick = () => selectEPP(card, epp.id);
+    eppEl.appendChild(card);
+  });
+}
+
+function selectRisk(chip, id) {
+  document.querySelectorAll('.risk-chip').forEach(c => c.classList.remove('selected'));
+  chip.classList.add('selected');
+  selectedRisk = id;
+}
+
+function selectEPP(card, id) {
+  document.querySelectorAll('.lens-card').forEach(c => c.classList.remove('selected'));
+  card.classList.add('selected');
+  selectedEPP = id;
+}
+
+/* ══════════════════════════════════════════
+   CONFIRMAR
+══════════════════════════════════════════ */
+function confirmAnswer() {
+  if (!selectedRisk && !selectedEPP) { shakeBtn(); return; }
+
+  const s       = queue[currentQ];
+  const riskOk  = selectedRisk === s.correctRisk;
+  const eppOk   = selectedEPP  === s.correctEPP;
+  const pts     = (riskOk ? 1 : 0) + (eppOk ? 2 : 0);
+  const maxPts  = 3;
+
+  score    += pts;
+  maxScore += maxPts;
+
+  const ratio = pts / maxPts;
+  const type  = ratio >= 0.8 ? 'correct' : ratio >= 0.4 ? 'partial' : 'wrong';
+  const titles = { correct: '¡Correcto!', partial: 'Casi correcto', wrong: 'Incorrecto' };
+  const bodies = {
+    correct: 'Identificaste bien el riesgo y el elemento de protección adecuado.',
+    partial: 'Uno de los dos estuvo bien. Revisa el detalle abajo.',
+    wrong:   'Ninguna selección fue correcta. Lee la explicación para reforzar.'
+  };
+
+  const correctEPPName  = s.eppOptions.find(e => e.id === s.correctEPP)?.name  || s.correctEPP;
+  const selectedEPPName = selectedEPP ? (s.eppOptions.find(e => e.id === selectedEPP)?.name || selectedEPP) : '—';
+
+  let detail = `<span class="${riskOk ? 'ok' : 'err'}">${riskOk ? '✓' : '✗'} Riesgo: ${selectedRisk || '(sin selección)'}</span><br>`;
+  if (!riskOk) detail += `<span class="neutral">&nbsp;&nbsp;Correcto era: ${s.correctRisk}</span><br>`;
+  detail += `<br><span class="${eppOk ? 'ok' : 'err'}">${eppOk ? '✓' : '✗'} EPP: ${selectedEPPName}</span>`;
+  if (!eppOk) detail += `<br><span class="neutral">&nbsp;&nbsp;Correcto era: ${correctEPPName}</span>`;
+
+  document.getElementById('fb-dot').className = `fb-dot ${type}`;
+  document.getElementById('fb-title').textContent = titles[type];
+  document.getElementById('fb-body').textContent  = bodies[type];
+  document.getElementById('fb-detail').innerHTML  = detail;
+  document.getElementById('fb-explanation').textContent = s.explanation;
+
+  const isLast = currentQ === queue.length - 1;
+  document.getElementById('fb-btn').textContent = isLast ? 'Ver resultados →' : 'Siguiente →';
+
+  answers.push({ id: s.id, pts, maxPts, riskOk, eppOk });
+  document.getElementById('feedback-overlay').classList.add('show');
+}
+
+function shakeBtn() {
+  const btn = document.getElementById('btn-confirm');
+  btn.style.animation = 'none';
+  btn.offsetHeight;
+  btn.style.animation = 'shake 0.4s ease';
+  setTimeout(() => btn.style.animation = '', 400);
+}
+
+/* ══════════════════════════════════════════
+   SIGUIENTE
+══════════════════════════════════════════ */
+function nextQuestion() {
+  document.getElementById('feedback-overlay').classList.remove('show');
+  currentQ++;
+  if (currentQ >= queue.length) showResults();
+  else renderQ();
+}
+
+function skipQuestion() {
+  maxScore += 3;
+  answers.push({ id: queue[currentQ].id, pts: 0, maxPts: 3, riskOk: false, lensOk: false });
+  currentQ++;
+  if (currentQ >= queue.length) showResults();
+  else renderQ();
+}
+
+/* ══════════════════════════════════════════
+   RESULTADOS
+══════════════════════════════════════════ */
+function showResults() {
+  showScreen('results-screen');
+  const pct = maxScore > 0 ? Math.round(score / maxScore * 100) : 0;
+
+  let tag, title, sub;
+  if      (pct >= 85) { tag = 'Experto'; title = '¡Excelente desempeño!';         sub = 'Dominas la identificación de riesgos y la selección de EPP ocular.'; }
+  else if (pct >= 60) { tag = 'Avanzado'; title = 'Buen trabajo';                  sub = 'Tienes una base sólida. Algunos conceptos aún pueden reforzarse.'; }
+  else if (pct >= 40) { tag = 'En progreso'; title = 'Sigue practicando';          sub = 'Los EPP son fundamentales. Repasa los escenarios con errores.'; }
+  else                 { tag = 'Inicial'; title = 'Necesitas reforzar conceptos';  sub = 'Vuelve a intentarlo — cada intento fortalece tu comprensión de los EPP.'; }
+
+  saveAttempt(pct, tag);
+
+  document.getElementById('results-tag').textContent   = tag;
+  document.getElementById('results-title').textContent = title;
+  document.getElementById('results-sub').textContent   = sub;
+  document.getElementById('res-pct').textContent = pct + '%';
+  document.getElementById('res-pts').textContent = score + ' / ' + maxScore;
+
+  const list = document.getElementById('results-list');
+  list.innerHTML = '';
+  answers.forEach((a, i) => {
+    const pass = a.pts >= a.maxPts * 0.5;
+    const row  = document.createElement('div');
+    row.className = `result-row ${pass ? 'pass' : 'fail'}`;
+    row.innerHTML = `
+      <span class="r-icon">${pass ? '✓' : '✗'}</span>
+      <span class="r-name">Escenario ${i + 1}</span>
+      <span class="r-pts">${a.pts} / ${a.maxPts} pts</span>`;
+    list.appendChild(row);
+  });
+
+  if (pct >= 85) spawnConfetti();
+}
+
+/* ══════════════════════════════════════════
+   CONFETTI
+══════════════════════════════════════════ */
+function spawnConfetti() {
+  const colors = ['#e8941a','#22c55e','#3b82f6','#f59e0b','#e11d48'];
+  for (let i = 0; i < 70; i++) {
+    const el = document.createElement('div');
+    el.className = 'confetti-piece';
+    el.style.cssText = `
+      left:${Math.random()*100}vw; top:-10px;
+      width:${Math.random()*8+5}px; height:${Math.random()*8+5}px;
+      background:${colors[Math.floor(Math.random()*colors.length)]};
+      border-radius:${Math.random()>.5?'50%':'2px'};
+      animation-delay:${Math.random()*2}s;
+      animation-duration:${Math.random()*2+2.5}s;`;
+    document.body.appendChild(el);
+    el.addEventListener('animationend', () => el.remove());
+  }
+}
+</script>
+</body>
+</html>

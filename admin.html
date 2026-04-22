@@ -1,0 +1,728 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Admin · EPP Entrenamiento</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
+
+:root {
+  --bg:       #0d0f14;
+  --surface:  #13161e;
+  --surface2: #1a1e28;
+  --border:   #252a36;
+  --border2:  #2f3545;
+  --text:     #d8dde8;
+  --muted:    #5a6478;
+  --accent:   #e8941a;
+  --success:  #22c55e;
+  --danger:   #ef4444;
+  --warning:  #f59e0b;
+  --info:     #3b82f6;
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  font-family: 'Inter', system-ui, sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  min-height: 100vh;
+  padding: 24px 16px 60px;
+}
+
+/* ─── HEADER ─── */
+.admin-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 12px;
+  max-width: 1100px;
+  margin: 0 auto 32px;
+}
+.admin-brand {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.admin-brand svg { width: 20px; height: 20px; fill: var(--accent); }
+.admin-brand-text { font-size: 13px; font-weight: 700; letter-spacing: 1.5px; text-transform: uppercase; color: var(--accent); }
+.admin-title { font-size: 11px; color: var(--muted); margin-top: 2px; }
+.header-actions { display: flex; gap: 8px; }
+.btn {
+  display: inline-flex; align-items: center; gap: 6px;
+  padding: 9px 16px; border-radius: 6px; border: none;
+  font-family: inherit; font-size: 13px; font-weight: 600;
+  cursor: pointer; transition: all 0.15s;
+}
+.btn-ghost { background: var(--surface2); color: var(--text); border: 1px solid var(--border2); }
+.btn-ghost:hover { border-color: var(--accent); color: var(--accent); }
+.btn-danger { background: #3f1515; color: var(--danger); border: 1px solid #5a1f1f; }
+.btn-danger:hover { background: #5a1f1f; }
+
+/* ─── STATS CARDS ─── */
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+  gap: 12px;
+  max-width: 1100px;
+  margin: 0 auto 28px;
+}
+.stat-card {
+  background: var(--surface);
+  border: 1px solid var(--border2);
+  border-radius: 10px;
+  padding: 18px 20px;
+}
+.stat-val { font-size: 28px; font-weight: 800; color: #fff; line-height: 1; margin-bottom: 4px; }
+.stat-lbl { font-size: 11px; font-weight: 600; letter-spacing: 0.8px; text-transform: uppercase; color: var(--muted); }
+
+/* ─── FILTROS ─── */
+.filters {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  max-width: 1100px;
+  margin: 0 auto 20px;
+  align-items: flex-end;
+}
+.filter-group { display: flex; flex-direction: column; gap: 5px; min-width: 160px; }
+.filter-group label { font-size: 10px; font-weight: 700; letter-spacing: 1px; text-transform: uppercase; color: var(--muted); }
+.filter-group select, .filter-group input {
+  background: var(--surface2);
+  border: 1px solid var(--border2);
+  border-radius: 6px;
+  padding: 8px 12px;
+  font-family: inherit;
+  font-size: 13px;
+  color: var(--text);
+  outline: none;
+  transition: border-color 0.15s;
+}
+.filter-group select:focus, .filter-group input:focus { border-color: var(--accent); }
+.filter-group select option { background: var(--surface2); }
+
+/* ─── TABLA ─── */
+.table-wrap {
+  max-width: 1100px;
+  margin: 0 auto;
+  overflow-x: auto;
+  background: var(--surface);
+  border: 1px solid var(--border2);
+  border-radius: 10px;
+}
+table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13px;
+  min-width: 700px;
+}
+thead tr {
+  border-bottom: 1px solid var(--border2);
+}
+thead th {
+  padding: 12px 16px;
+  text-align: left;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  color: var(--muted);
+  cursor: pointer;
+  user-select: none;
+  white-space: nowrap;
+}
+thead th:hover { color: var(--accent); }
+thead th.sorted { color: var(--accent); }
+tbody tr {
+  border-bottom: 1px solid var(--border);
+  transition: background 0.12s;
+}
+tbody tr:last-child { border-bottom: none; }
+tbody tr:hover { background: var(--surface2); }
+td { padding: 12px 16px; vertical-align: middle; }
+
+.badge {
+  display: inline-block;
+  padding: 3px 9px;
+  border-radius: 4px;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.3px;
+}
+.badge-experto   { background: #14532d; color: var(--success); }
+.badge-avanzado  { background: #1e3a5f; color: #60a5fa; }
+.badge-progreso  { background: #422006; color: var(--warning); }
+.badge-inicial   { background: #3f1515; color: var(--danger); }
+
+.pct-bar-wrap { display: flex; align-items: center; gap: 8px; }
+.pct-bar {
+  flex: 1;
+  height: 6px;
+  background: var(--border2);
+  border-radius: 3px;
+  overflow: hidden;
+  min-width: 60px;
+}
+.pct-bar-fill { height: 100%; border-radius: 3px; transition: width 0.3s; }
+
+.attempts-pill {
+  display: inline-flex; align-items: center; gap: 4px;
+  background: var(--surface2);
+  border: 1px solid var(--border2);
+  border-radius: 20px;
+  padding: 3px 10px;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text);
+}
+.attempts-pill.multi { border-color: var(--accent); color: var(--accent); }
+
+.empty-state {
+  text-align: center;
+  padding: 60px 24px;
+  color: var(--muted);
+}
+.empty-state svg { width: 40px; height: 40px; margin-bottom: 12px; opacity: 0.3; }
+.empty-state p { font-size: 14px; }
+
+.ts { font-size: 11px; color: var(--muted); }
+
+/* ─── PANEL DETALLE ─── */
+.detail-panel {
+  position: fixed;
+  top: 0; right: -420px;
+  width: 420px;
+  height: 100vh;
+  background: var(--surface);
+  border-left: 1px solid var(--border2);
+  overflow-y: auto;
+  padding: 28px 24px;
+  transition: right 0.3s ease;
+  z-index: 100;
+}
+.detail-panel.open { right: 0; }
+.detail-close {
+  position: absolute; top: 16px; right: 16px;
+  background: none; border: none; color: var(--muted);
+  font-size: 20px; cursor: pointer;
+}
+.detail-close:hover { color: var(--text); }
+.detail-name { font-size: 20px; font-weight: 800; color: #fff; margin-bottom: 4px; }
+.detail-meta { font-size: 12px; color: var(--muted); margin-bottom: 24px; }
+.detail-section-title {
+  font-size: 10px; font-weight: 700; letter-spacing: 1px;
+  text-transform: uppercase; color: var(--muted);
+  margin: 20px 0 10px;
+}
+.attempt-row {
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 12px 14px;
+  margin-bottom: 8px;
+}
+.attempt-row-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; }
+.attempt-num { font-size: 11px; color: var(--muted); }
+.attempt-pct { font-size: 18px; font-weight: 800; color: #fff; }
+.attempt-ts { font-size: 10px; color: var(--muted); margin-top: 4px; }
+
+/* ─── IMPORT ZONE ─── */
+.import-zone {
+  max-width: 1100px;
+  margin: 0 auto 28px;
+  border: 2px dashed var(--border2);
+  border-radius: 12px;
+  padding: 28px 24px;
+  text-align: center;
+  transition: border-color 0.2s, background 0.2s;
+  cursor: pointer;
+}
+.import-zone:hover, .import-zone.drag-over {
+  border-color: var(--accent);
+  background: rgba(232,148,26,0.04);
+}
+.import-zone.has-data {
+  border-color: var(--success);
+  background: rgba(34,197,94,0.04);
+}
+.import-icon { font-size: 28px; margin-bottom: 8px; }
+.import-title { font-size: 14px; font-weight: 700; color: #fff; margin-bottom: 4px; }
+.import-sub { font-size: 12px; color: var(--muted); }
+.import-status { font-size: 13px; font-weight: 600; color: var(--success); margin-top: 8px; }
+#file-input { display: none; }
+
+.source-tabs {
+  max-width: 1100px;
+  margin: 0 auto 20px;
+  display: flex;
+  gap: 8px;
+}
+.source-tab {
+  padding: 8px 18px;
+  border-radius: 6px;
+  border: 1px solid var(--border2);
+  background: var(--surface2);
+  color: var(--muted);
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+.source-tab.active {
+  border-color: var(--accent);
+  color: var(--accent);
+  background: rgba(232,148,26,0.08);
+}
+</style>
+</head>
+<body>
+
+<!-- ══ LOGIN OVERLAY ══ -->
+<div id="login-overlay" style="
+  position:fixed;inset:0;background:#0d0f14;
+  display:flex;align-items:center;justify-content:center;
+  z-index:999;padding:24px;">
+  <div style="background:#13161e;border:1px solid #2f3545;border-radius:12px;padding:40px 32px;width:100%;max-width:360px;text-align:center;">
+    <svg viewBox="0 0 24 24" style="width:32px;height:32px;fill:#e8941a;margin-bottom:16px;">
+      <path d="M12 1L3 5v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V5l-9-4z"/>
+    </svg>
+    <div style="font-size:18px;font-weight:800;color:#fff;margin-bottom:6px;">Acceso restringido</div>
+    <div style="font-size:13px;color:#5a6478;margin-bottom:28px;">Panel de administración · Newrest</div>
+    <input id="login-input" type="password" placeholder="Contraseña"
+      style="width:100%;background:#1a1e28;border:1px solid #2f3545;border-radius:6px;
+             padding:12px 14px;font-family:inherit;font-size:14px;color:#d8dde8;
+             outline:none;margin-bottom:10px;transition:border-color 0.15s;"
+      onkeydown="if(event.key==='Enter')checkLogin()"
+      onfocus="this.style.borderColor='#e8941a'" onblur="this.style.borderColor='#2f3545'">
+    <div id="login-error" style="font-size:12px;color:#ef4444;margin-bottom:10px;display:none;">
+      Contraseña incorrecta.
+    </div>
+    <button onclick="checkLogin()" style="width:100%;background:#e8941a;color:#000;border:none;
+      border-radius:6px;padding:12px;font-family:inherit;font-size:14px;font-weight:700;
+      cursor:pointer;transition:background 0.15s;"
+      onmouseover="this.style.background='#c97a10'" onmouseout="this.style.background='#e8941a'">
+      Ingresar →
+    </button>
+    <div style="margin-top:20px;">
+      <a href="index.html" style="font-size:12px;color:#5a6478;text-decoration:none;">← Volver al juego</a>
+    </div>
+  </div>
+</div>
+
+<div id="admin-content" style="display:none;">
+<div class="admin-header">
+  <div class="admin-brand">
+    <svg viewBox="0 0 24 24"><path d="M12 1L3 5v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V5l-9-4z"/></svg>
+    <div>
+      <div class="admin-brand-text">Newrest · Panel Admin</div>
+      <div class="admin-title">Resultados de Entrenamiento EPP</div>
+    </div>
+  </div>
+  <div class="header-actions">
+    <button class="btn btn-ghost" onclick="exportCSV()">⬇ Exportar CSV</button>
+    <button class="btn btn-danger" onclick="clearLoaded()">✕ Limpiar vista</button>
+    <a href="index.html" class="btn btn-ghost">← Volver al juego</a>
+  </div>
+</div>
+
+<!-- ZONA DE IMPORTACIÓN -->
+<div class="import-zone" id="import-zone" onclick="document.getElementById('file-input').click()"
+     ondragover="onDragOver(event)" ondragleave="onDragLeave(event)" ondrop="onDrop(event)">
+  <input type="file" id="file-input" accept=".csv" onchange="onFileSelected(event)">
+  <div class="import-icon">📂</div>
+  <div class="import-title">Arrastra tu CSV aquí o haz clic para seleccionar</div>
+  <div class="import-sub">Exporta el CSV desde Google Sheets y súbelo para visualizar</div>
+  <div class="import-status" id="import-status" style="display:none"></div>
+</div>
+
+<div class="stats-grid" id="stats-grid"></div>
+
+<div class="filters">
+  <div class="filter-group">
+    <label>Buscar nombre</label>
+    <input id="f-nombre" type="text" placeholder="Nombre..." oninput="renderTable()">
+  </div>
+  <div class="filter-group">
+    <label>Área</label>
+    <select id="f-area" onchange="renderTable()">
+      <option value="">Todas las áreas</option>
+    </select>
+  </div>
+  <div class="filter-group">
+    <label>Cargo</label>
+    <select id="f-cargo" onchange="renderTable()">
+      <option value="">Todos los cargos</option>
+    </select>
+  </div>
+  <div class="filter-group">
+    <label>Resultado</label>
+    <select id="f-tag" onchange="renderTable()">
+      <option value="">Todos</option>
+      <option value="Experto">Experto</option>
+      <option value="Avanzado">Avanzado</option>
+      <option value="En progreso">En progreso</option>
+      <option value="Inicial">Inicial</option>
+    </select>
+  </div>
+  <div class="filter-group">
+    <label>Intentos</label>
+    <select id="f-intentos" onchange="renderTable()">
+      <option value="">Todos</option>
+      <option value="1">Solo 1 intento</option>
+      <option value="2+">2 o más intentos</option>
+    </select>
+  </div>
+</div>
+
+<div class="table-wrap">
+  <table>
+    <thead>
+      <tr>
+        <th onclick="sortBy('nombre')">Nombre</th>
+        <th onclick="sortBy('cargo')">Cargo</th>
+        <th onclick="sortBy('area')">Área</th>
+        <th onclick="sortBy('pct')">Mejor resultado</th>
+        <th onclick="sortBy('lastPct')">Último intento</th>
+        <th onclick="sortBy('intentos')">Intentos</th>
+        <th onclick="sortBy('lastTs')">Última vez</th>
+        <th></th>
+      </tr>
+    </thead>
+    <tbody id="table-body"></tbody>
+  </table>
+</div>
+
+<!-- PANEL DETALLE -->
+<div class="detail-panel" id="detail-panel">
+  <button class="detail-close" onclick="closeDetail()">✕</button>
+  <div class="detail-name" id="dp-name"></div>
+  <div class="detail-meta" id="dp-meta"></div>
+  <div class="detail-section-title">Historial de intentos</div>
+  <div id="dp-attempts"></div>
+</div>
+
+<script>
+// ── Estado ──
+let allAttempts = [];   // filas raw del CSV (una por intento)
+let users = [];         // agrupados por nombre+cargo+area
+let sortKey = 'lastTs';
+let sortDir = -1;
+
+// ── Drag & drop / file input ──
+function onDragOver(e) {
+  e.preventDefault();
+  document.getElementById('import-zone').classList.add('drag-over');
+}
+function onDragLeave() {
+  document.getElementById('import-zone').classList.remove('drag-over');
+}
+function onDrop(e) {
+  e.preventDefault();
+  onDragLeave();
+  const file = e.dataTransfer.files[0];
+  if (file) parseCSVFile(file);
+}
+function onFileSelected(e) {
+  const file = e.target.files[0];
+  if (file) parseCSVFile(file);
+}
+
+function parseCSVFile(file) {
+  const reader = new FileReader();
+  reader.onload = (e) => {
+    try {
+      const text = e.target.result;
+      allAttempts = parseCSV(text);
+      if (!allAttempts.length) throw new Error('vacío');
+      buildUsers();
+      populateFilters();
+      renderStats();
+      renderTable();
+
+      const zone = document.getElementById('import-zone');
+      zone.classList.add('has-data');
+      const status = document.getElementById('import-status');
+      status.textContent = `✓ ${allAttempts.length} registros cargados desde "${file.name}"`;
+      status.style.display = 'block';
+    } catch {
+      alert('No se pudo leer el CSV. Asegúrate de exportarlo desde Google Sheets como CSV.');
+    }
+  };
+  reader.readAsText(file, 'UTF-8');
+}
+
+function parseCSV(text) {
+  // Soporta BOM y distintos separadores (coma o punto y coma)
+  text = text.replace(/^\uFEFF/, '');
+  const lines = text.trim().split(/\r?\n/);
+  if (lines.length < 2) return [];
+
+  const sep = lines[0].includes(';') ? ';' : ',';
+  const headers = splitCSVLine(lines[0], sep).map(h => h.trim().toLowerCase());
+
+  // Mapeo flexible de columnas
+  const col = (names) => {
+    for (const n of names) {
+      const i = headers.findIndex(h => h.includes(n));
+      if (i >= 0) return i;
+    }
+    return -1;
+  };
+
+  const iNombre    = col(['nombre']);
+  const iCargo     = col(['cargo']);
+  const iArea      = col(['área','area']);
+  const iScore     = col(['score','puntaje','pts']);
+  const iMaxScore  = col(['maxscore','max']);
+  const iPct       = col(['pct','%','porcentaje','acierto']);
+  const iTag       = col(['tag','nivel','resultado']);
+  const iTimestamp = col(['timestamp','fecha','time']);
+
+  return lines.slice(1).filter(l => l.trim()).map(line => {
+    const cells = splitCSVLine(line, sep);
+    const get = (i) => i >= 0 ? (cells[i] || '').trim().replace(/^"|"$/g, '') : '';
+    return {
+      nombre:    get(iNombre),
+      cargo:     get(iCargo),
+      area:      get(iArea),
+      score:     parseInt(get(iScore))    || 0,
+      maxScore:  parseInt(get(iMaxScore)) || 18,
+      pct:       parseInt(get(iPct))      || 0,
+      tag:       get(iTag)                || 'Inicial',
+      timestamp: get(iTimestamp)          || new Date().toISOString()
+    };
+  }).filter(r => r.nombre);
+}
+
+function splitCSVLine(line, sep) {
+  const result = [];
+  let cur = '', inQ = false;
+  for (let i = 0; i < line.length; i++) {
+    const ch = line[i];
+    if (ch === '"') { inQ = !inQ; }
+    else if (ch === sep && !inQ) { result.push(cur); cur = ''; }
+    else { cur += ch; }
+  }
+  result.push(cur);
+  return result;
+}
+
+// ── Construcción de usuarios agrupados ──
+function buildUsers() {
+  const map = {};
+  allAttempts.forEach(a => {
+    const key = `${a.nombre}||${a.cargo}||${a.area}`;
+    if (!map[key]) map[key] = { nombre: a.nombre, cargo: a.cargo, area: a.area, attempts: [] };
+    map[key].attempts.push(a);
+  });
+  users = Object.values(map).map(u => {
+    const pcts   = u.attempts.map(a => a.pct);
+    const sorted = [...u.attempts].sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
+    return {
+      ...u,
+      intentos: u.attempts.length,
+      bestPct:  Math.max(...pcts),
+      lastPct:  sorted[0].pct,
+      lastTag:  sorted[0].tag,
+      lastTs:   sorted[0].timestamp
+    };
+  });
+}
+
+function populateFilters() {
+  const AREAS = ['ASEO','ALIMENTACION','HOTELERIA','RETAIL','GYM','MANTENCION','QHSE','RRHH'];
+  const presentAreas  = [...new Set(allAttempts.map(a => a.area))].sort();
+  const cargos        = [...new Set(allAttempts.map(a => a.cargo))].sort();
+
+  const fArea  = document.getElementById('f-area');
+  const fCargo = document.getElementById('f-cargo');
+  const curArea = fArea.value, curCargo = fCargo.value;
+
+  // Mostrar primero las áreas definidas, luego otras que puedan venir del CSV
+  const allAreas = [...new Set([...AREAS.filter(a => presentAreas.includes(a)), ...presentAreas.filter(a => !AREAS.includes(a))])];
+
+  fArea.innerHTML  = '<option value="">Todas las áreas</option>'  + allAreas.map(v => `<option value="${v}">${v}</option>`).join('');
+  fCargo.innerHTML = '<option value="">Todos los cargos</option>' + cargos.map(v => `<option value="${v}">${v}</option>`).join('');
+
+  fArea.value = curArea; fCargo.value = curCargo;
+}
+
+function renderStats() {
+  const total    = allAttempts.length;
+  const personas = users.length;
+  const avgPct   = total ? Math.round(allAttempts.reduce((s, a) => s + a.pct, 0) / total) : 0;
+  const multi    = users.filter(u => u.intentos > 1).length;
+
+  document.getElementById('stats-grid').innerHTML = `
+    <div class="stat-card"><div class="stat-val">${personas}</div><div class="stat-lbl">Participantes únicos</div></div>
+    <div class="stat-card"><div class="stat-val">${total}</div><div class="stat-lbl">Total de intentos</div></div>
+    <div class="stat-card"><div class="stat-val">${avgPct}%</div><div class="stat-lbl">Promedio general</div></div>
+    <div class="stat-card"><div class="stat-val">${multi}</div><div class="stat-lbl">Repitieron el juego</div></div>
+  `;
+}
+
+function getFiltered() {
+  const fNombre   = document.getElementById('f-nombre').value.toLowerCase();
+  const fArea     = document.getElementById('f-area').value;
+  const fCargo    = document.getElementById('f-cargo').value;
+  const fTag      = document.getElementById('f-tag').value;
+  const fIntentos = document.getElementById('f-intentos').value;
+
+  return users.filter(u => {
+    if (fNombre   && !u.nombre.toLowerCase().includes(fNombre)) return false;
+    if (fArea     && u.area    !== fArea)   return false;
+    if (fCargo    && u.cargo   !== fCargo)  return false;
+    if (fTag      && u.lastTag !== fTag)    return false;
+    if (fIntentos === '1'  && u.intentos !== 1) return false;
+    if (fIntentos === '2+' && u.intentos < 2)   return false;
+    return true;
+  });
+}
+
+function sortBy(key) {
+  if (sortKey === key) sortDir *= -1;
+  else { sortKey = key; sortDir = key === 'lastTs' ? -1 : 1; }
+  renderTable();
+}
+
+function renderTable() {
+  const rows = getFiltered().sort((a, b) => {
+    let va = a[sortKey], vb = b[sortKey];
+    if (typeof va === 'string') { va = va.toLowerCase(); vb = vb.toLowerCase(); }
+    return va < vb ? -sortDir : va > vb ? sortDir : 0;
+  });
+
+  const tbody = document.getElementById('table-body');
+
+  if (!allAttempts.length) {
+    tbody.innerHTML = `<tr><td colspan="8"><div class="empty-state">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1M12 12V4M8 8l4-4 4 4"/></svg>
+      <p>Sube un CSV exportado desde Google Sheets para visualizar los resultados.</p>
+    </div></td></tr>`;
+    return;
+  }
+
+  if (!rows.length) {
+    tbody.innerHTML = `<tr><td colspan="8"><div class="empty-state">
+      <p>Sin resultados con los filtros actuales.</p>
+    </div></td></tr>`;
+    return;
+  }
+
+  tbody.innerHTML = rows.map(u => {
+    const barColor    = u.bestPct >= 85 ? '#22c55e' : u.bestPct >= 60 ? '#3b82f6' : u.bestPct >= 40 ? '#f59e0b' : '#ef4444';
+    const tagClass    = { 'Experto': 'experto', 'Avanzado': 'avanzado', 'En progreso': 'progreso', 'Inicial': 'inicial' }[u.lastTag] || 'inicial';
+    const ts          = new Date(u.lastTs);
+    const tsStr       = isNaN(ts) ? u.lastTs : ts.toLocaleDateString('es-CL') + ' ' + ts.toLocaleTimeString('es-CL', { hour: '2-digit', minute: '2-digit' });
+    const multiAttempt = u.intentos > 1;
+
+    return `<tr>
+      <td><strong>${esc(u.nombre)}</strong></td>
+      <td>${esc(u.cargo)}</td>
+      <td>${esc(u.area)}</td>
+      <td>
+        <div class="pct-bar-wrap">
+          <div class="pct-bar"><div class="pct-bar-fill" style="width:${u.bestPct}%;background:${barColor}"></div></div>
+          <span style="font-weight:700;color:#fff;min-width:36px">${u.bestPct}%</span>
+        </div>
+      </td>
+      <td><span class="badge badge-${tagClass}">${esc(u.lastTag)}</span> <span style="font-size:12px;color:var(--muted)">${u.lastPct}%</span></td>
+      <td><span class="attempts-pill ${multiAttempt ? 'multi' : ''}">${u.intentos} ${u.intentos === 1 ? 'intento' : 'intentos'}</span></td>
+      <td><span class="ts">${tsStr}</span></td>
+      <td><button class="btn btn-ghost" style="padding:5px 10px;font-size:11px;" onclick='openDetail(${JSON.stringify(u.nombre)},${JSON.stringify(u.cargo)},${JSON.stringify(u.area)})'>Ver detalle</button></td>
+    </tr>`;
+  }).join('');
+}
+
+function esc(str) {
+  return String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+
+function openDetail(nombre, cargo, area) {
+  const key  = `${nombre}||${cargo}||${area}`;
+  const user = users.find(u => `${u.nombre}||${u.cargo}||${u.area}` === key);
+  if (!user) return;
+
+  document.getElementById('dp-name').textContent = user.nombre;
+  document.getElementById('dp-meta').textContent = `${user.cargo} · ${user.area}`;
+
+  const sorted = [...user.attempts].sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
+  document.getElementById('dp-attempts').innerHTML = sorted.map((a, i) => {
+    const ts     = new Date(a.timestamp);
+    const tsStr  = isNaN(ts) ? a.timestamp : ts.toLocaleDateString('es-CL') + ' ' + ts.toLocaleTimeString('es-CL', { hour: '2-digit', minute: '2-digit' });
+    const barColor = a.pct >= 85 ? '#22c55e' : a.pct >= 60 ? '#3b82f6' : a.pct >= 40 ? '#f59e0b' : '#ef4444';
+    return `<div class="attempt-row">
+      <div class="attempt-row-header">
+        <span class="attempt-num">Intento #${sorted.length - i}</span>
+        <span class="attempt-pct" style="color:${barColor}">${a.pct}%</span>
+      </div>
+      <div class="pct-bar" style="margin-bottom:6px"><div class="pct-bar-fill" style="width:${a.pct}%;background:${barColor}"></div></div>
+      <div style="font-size:12px;color:var(--muted)">${a.score} / ${a.maxScore} pts · ${esc(a.tag)}</div>
+      <div class="attempt-ts">${tsStr}</div>
+    </div>`;
+  }).join('');
+
+  document.getElementById('detail-panel').classList.add('open');
+}
+
+function closeDetail() {
+  document.getElementById('detail-panel').classList.remove('open');
+}
+
+function exportCSV() {
+  if (!users.length) { alert('No hay datos cargados para exportar.'); return; }
+  const rows = [['Nombre','Cargo','Área','Intentos','Mejor %','Último %','Último resultado','Última vez']];
+  users.forEach(u => rows.push([u.nombre, u.cargo, u.area, u.intentos, u.bestPct, u.lastPct, u.lastTag, u.lastTs]));
+  const csv  = rows.map(r => r.map(v => `"${String(v).replace(/"/g,'""')}"`).join(',')).join('\n');
+  const blob = new Blob(['\uFEFF' + csv], { type: 'text/csv;charset=utf-8;' });
+  const a    = document.createElement('a');
+  a.href     = URL.createObjectURL(blob);
+  a.download = `epp_resultados_${new Date().toISOString().slice(0,10)}.csv`;
+  a.click();
+}
+
+function clearLoaded() {
+  allAttempts = []; users = [];
+  document.getElementById('import-zone').classList.remove('has-data');
+  document.getElementById('import-status').style.display = 'none';
+  document.getElementById('file-input').value = '';
+  renderStats();
+  renderTable();
+  populateFilters();
+}
+
+// ── Login ──
+const ADMIN_PASS = 'newrest2025'; // Cambia esta contraseña
+
+function checkLogin() {
+  const val = document.getElementById('login-input').value;
+  if (val === ADMIN_PASS) {
+    sessionStorage.setItem('admin_auth', '1');
+    document.getElementById('login-overlay').style.display = 'none';
+    document.getElementById('admin-content').style.display = 'block';
+    renderStats();
+    renderTable();
+  } else {
+    document.getElementById('login-error').style.display = 'block';
+    document.getElementById('login-input').value = '';
+    document.getElementById('login-input').focus();
+  }
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+  if (sessionStorage.getItem('admin_auth') === '1') {
+    document.getElementById('login-overlay').style.display = 'none';
+    document.getElementById('admin-content').style.display = 'block';
+    renderStats();
+    renderTable();
+  } else {
+    setTimeout(() => document.getElementById('login-input').focus(), 100);
+  }
+});
+</script>
+</div> <!-- /admin-content -->
+</body>
+</html>
