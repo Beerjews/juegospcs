@@ -1068,10 +1068,10 @@ function renderQ() {
   };
   frame.prepend(img);
 
-  // Riesgos — 3 opciones por escenario
+  // Riesgos — 3 opciones por escenario (orden aleatorio)
   const risksEl = document.getElementById('risks-container');
   risksEl.innerHTML = '';
-  s.riskOptions.forEach(r => {
+  shuffle(s.riskOptions).forEach(r => {
     const chip = document.createElement('div');
     chip.className = 'risk-chip';
     chip.dataset.id = r;
@@ -1085,7 +1085,7 @@ function renderQ() {
   eppEl.innerHTML = '';
   eppEl.style.gridTemplateColumns = `repeat(${Math.min(s.eppOptions.length, 3)}, 1fr)`;
 
-  s.eppOptions.forEach(epp => {
+  shuffle(s.eppOptions).forEach(epp => {
     const card = document.createElement('div');
     card.className = 'lens-card';
     card.dataset.id = epp.id;
